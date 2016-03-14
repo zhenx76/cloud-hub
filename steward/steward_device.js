@@ -1,6 +1,8 @@
 var when = require('when');
 var util = require('util');
+var logger = require('../utility').logger;
 var steward = require('./steward_api');
+var steward_event = require('./steward_event');
 
 var actors = {};
 var devices = {};
@@ -93,5 +95,26 @@ module.exports = {
     },
     findDevice: function (id) {
         return listDevice(id);
+    },
+    addEventListener: function(cb) {
+        steward_event.addEventListener(function(update) {
+            try {
+                var info = clone(update);
+                var deviceID = info.whoami;
+
+                if (!info.hasOwnProperty('deviceID'))
+                    info.deviceID = deviceID;
+
+                if (deviceTypeMappings.hasOwnProperty(info.whatami))
+                    info.deviceType = deviceTypeMappings[info.whatami];
+                else
+                    info.deviceType = info.whatami;
+
+                cb(info);
+
+            } catch (e) {
+                logger.error(e);
+            }
+        });
     }
 };

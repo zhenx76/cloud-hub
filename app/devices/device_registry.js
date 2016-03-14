@@ -1,5 +1,5 @@
 var when = require('when');
-var logger = require('winston');
+var logger = require('../../utility').logger;
 var deviceManager = require('../../steward');
 
 var deviceModels = {};

@@ -11,5 +11,6 @@ module.exports = {
     installDeviceMapping: stewardDevice.installDeviceMapping,
     findDeviceModel: stewardDevice.findDeviceModel,
     findAllDevices: stewardDevice.findAllDevices,
-    enumerateDevices: stewardDevice.enumerateDevices
+    enumerateDevices: stewardDevice.enumerateDevices,
+    addEventListener: stewardDevice.addEventListener
 };

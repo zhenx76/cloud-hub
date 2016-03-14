@@ -1,7 +1,7 @@
 var util = require('util');
 var events = require('events');
 var when = require('when');
-var logger = require('winston');
+var logger = require('../../utility').logger;
 var deviceManager = require('../../steward');
 var deviceRegistry = require('./device_registry');
 
@@ -13,8 +13,15 @@ var Device = exports.Device = function(model, info) {
     this.deviceInfo = info;
     this.deviceType = info.deviceType;
     this.deviceID = info.deviceID;
+
+    this.on('update', this.onUpdateDevice);
 };
 util.inherits(Device, events.EventEmitter);
+
+Device.prototype.onUpdateDevice = function (info) {
+    logger.info('update device ' + this.deviceID);
+    this.deviceInfo = info;
+};
 
 function addDevice(info) {
     if (!deviceInstances.hasOwnProperty(info.deviceID) || !deviceInstances[info.deviceID]) {
@@ -24,6 +31,16 @@ function addDevice(info) {
             deviceInstances[info.deviceID] = new (deviceModel.factory)(deviceModel, info);
             logger.info('added device instance ' + info.deviceType + ' at ' + info.deviceID);
         }
+    }
+}
+
+function updateDevice(info) {
+    if (!deviceInstances.hasOwnProperty(info.deviceID) || !deviceInstances[info.deviceID]) {
+        logger.info('ignore unrecognized or un-enumerated device instance '
+            + info.deviceID + ' of type ' + info.deviceType);
+    } else {
+        var device = deviceInstances[info.deviceID];
+        device.emit('update', info);
     }
 }
 
@@ -39,6 +56,9 @@ exports.init = function () {
             // Register the root device model with device registry
             logger.info("register root device model");
             rootDeviceModel = deviceRegistry.registerDeviceModel(options);
+
+            // Subscribe to device manager event
+            deviceManager.addEventListener(updateDevice);
         });
 };
 

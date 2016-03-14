@@ -1,6 +1,7 @@
 var WebSocket = require('ws');
 var when = require('when');
-var logger = require('winston');
+var logger = require('../utility').logger;
+var steward_event = require('./steward_event');
 
 var reqno = 101;
 var callbacks = {};
@@ -291,9 +292,9 @@ function start_steward() {
                 var message = JSON.parse(event.data);
                 if (!message) throw new Error("invalid JSON: " + this.responseText);
 
-                //console.log(message);
+                steward_event.processConsoleEvents(message);
             } catch (ex) {
-                console.log(ex.message);
+                logger.error(ex.message);
             }
         };
 
@@ -301,7 +302,7 @@ function start_steward() {
         };
 
         ws_console.onerror = function (event) {
-            console.log(event);
+            logger.error(event);
             ws_console.close();
         };
     });

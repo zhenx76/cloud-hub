@@ -1,6 +1,6 @@
 var util = require('util');
 var when = require('when');
-var logger = require('winston');
+var logger = require('../../../utility').logger;
 var deviceRegistry = require('../device_registry');
 var gateway = require ('./device_gateway');
 
