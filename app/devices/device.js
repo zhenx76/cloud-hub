@@ -18,6 +18,26 @@ var Device = exports.Device = function(model, info) {
 };
 util.inherits(Device, events.EventEmitter);
 
+Device.prototype.getProperties = function() {
+    var result = {
+        'id': this.deviceID,
+        'type': this.deviceType,
+        'name': this.deviceModel.deviceModelName
+    };
+
+    // Device instance specific properties
+    result.info = {};
+    var redundantProps = ['name', 'whatami', 'deviceID', 'deviceType'];
+    for (var prop in this.deviceInfo) {
+        if (this.deviceInfo.hasOwnProperty(prop) &&
+            (redundantProps.indexOf(prop) == -1)) {
+            result.info[prop] = this.deviceInfo[prop];
+        }
+    }
+
+    return result;
+};
+
 Device.prototype.onUpdateDevice = function (info) {
     logger.info('update device ' + this.deviceID);
     this.deviceInfo = info;
@@ -69,4 +89,24 @@ exports.enumerate = function() {
                 addDevice(info);
             });
         });
+};
+
+exports.getAllDevices = function() {
+    var result = [];
+    for (var deviceID in deviceInstances) {
+        if (deviceInstances.hasOwnProperty(deviceID)) {
+            var device = deviceInstances[deviceID];
+            result.push(device.getProperties());
+        }
+    }
+    return {'devices' : result};
+};
+
+exports.getDevice = function(id) {
+    try {
+        var device = deviceInstances['device/' + id];
+        return device.getProperties();
+    } catch(ex) {
+        return {'error' : 'invalid device id: device/' + id};
+    }
 };

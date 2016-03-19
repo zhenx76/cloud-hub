@@ -22,5 +22,9 @@ module.exports = {
             .then(function() {
                 devices.enumerate();
             });
-    }
+    },
+    getAllDeviceModels: deviceRegistry.getAllDeviceModels,
+    getDeviceModel: deviceRegistry.getDeviceModel,
+    getAllDevices: devices.getAllDevices,
+    getDevice: devices.getDevice
 };

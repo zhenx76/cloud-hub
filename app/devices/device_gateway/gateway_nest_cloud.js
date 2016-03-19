@@ -9,6 +9,18 @@ var NestCloud = exports.NestCloud = function(model, info) {
 };
 util.inherits(NestCloud, gateway.Gateway);
 
+NestCloud.prototype.getProperties = function() {
+    var result = NestCloud.super_.prototype.getProperties.call(this);
+    result.gateway.type = 'cloud';
+
+    // Don't send username and password
+    if (result.info.hasOwnProperty('info')) {
+        delete result.info.info;
+    }
+
+    return result;
+};
+
 var options = {
     name: 'Nest Cloud Service',
     type: '/device/gateway/nest-cloud',

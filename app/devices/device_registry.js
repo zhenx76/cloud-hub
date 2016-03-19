@@ -15,6 +15,24 @@ var DeviceModel = function(options) {
     this.gatewayDeviceModel = {};
 };
 
+DeviceModel.prototype.getProperties = function() {
+    var result = {};
+    result.name = this.deviceModelName;
+    result.type = this.deviceModelType;
+
+    if (this.children.length) {
+        result.children = [];
+        for (var i = 0; i < this.children.length; i++) {
+            var child = this.children[i];
+            if (typeof child.getProperties !== 'undefined') {
+                result.children.push(child.getProperties());
+            }
+        }
+    }
+
+    return result;
+};
+
 function findDeviceModelByType(type) {
     var path = type.split('/');
     var deviceModel = deviceModels;
@@ -53,7 +71,7 @@ function registerDeviceModel(options) {
 
         // build tree structure
         parentDeviceModel[suffix] = deviceModel;
-        parentDeviceModel.children.push(suffix);
+        parentDeviceModel.children.push(deviceModel);
     }
 
     var info = deviceManager.findDeviceModel(deviceModel.deviceModelType);
@@ -79,5 +97,16 @@ module.exports = {
         return when.resolve(null);
     },
     registerDeviceModel: registerDeviceModel,
-    findDeviceModelByType: findDeviceModelByType
+    findDeviceModelByType: findDeviceModelByType,
+    getAllDeviceModels: function() {
+        return deviceModels.getProperties();
+    },
+    getDeviceModel: function(path) {
+        var deviceModel = findDeviceModelByType(path);
+        if (typeof deviceModel === 'undefined' || !deviceModel) {
+            return {'error' : 'invalid device model path name: ' + path};
+        } else {
+            return deviceModel.getProperties();
+        }
+    }
 };

@@ -9,6 +9,12 @@ var Gateway = exports.Gateway = function(model, info) {
 };
 util.inherits(Gateway, devices.Device);
 
+Gateway.prototype.getProperties = function() {
+    var result = Gateway.super_.prototype.getProperties.call(this);
+    result.gateway = {'type': 'cloud'};
+    return result;
+};
+
 var options = {
     name: 'Device Gateway',
     type: '/device/gateway',
